@@ -1,80 +1,81 @@
 :root {
   --white: #ffffff;
-    --dark: #000000;
+  --dark: #000000;
 
-    /* BLUE COLOR VARIANTS */
-    --blue-300: #86B9EA;
-    --blue-400: #529BE0;
-    --blue-500: #2F87DA;
-    --blue-600: #2273BF;
-    --blue-700: #185389;
+  /* INDIGO COLOR VARIANTS */
+  --indigo-300: #2079FE;
+  --indigo-400: #014AB9;
+  --indigo-500: #300BC1;
+  --indigo-600: #1E077E;
+  --indigo-700: #150047;
 
-    /* SKY COLOR VARIANTS */
-    --sky-300: #85FBFF;
-    --sky-400: #47F9FF;
-    --sky-500: #0AF7FF;
-    --sky-600: #00D9E0;
-    --sky-700: #00B1B8;
+  /* SKY COLOR VARIANTS */
+  --sky-300: #85fbff;
+  --sky-400: #47f9ff;
+  --sky-500: #0af7ff;
+  --sky-600: #00d9e0;
+  --sky-700: #00b1b8;
 
-    /* AMBER COLOR VARIANTS */
-    --amber-300: #FDDB9B;
-    --amber-400: #FCCC73;
-    --amber-500: #FBBE4B;
-    --amber-600: #FBAF23;
-    --amber-700: #F29F05;
+  /* AMBER COLOR VARIANTS */
+  --amber-300: #fddb9b;
+  --amber-400: #fccc73;
+  --amber-500: #fbbe4b;
+  --amber-600: #FFB546;
+  --amber-700: #f29f05;
 
-    /* RED COLOR VARIANTS */
-    --red-300: #FBC5C5;
-    --red-400: #F99F9F;
-    --red-500: #F67979;
-    --red-600: #F45252;
-    --red-700: #F23030;
+  /* RED COLOR VARIANTS */
+  --red-300: #fbc5c5;
+  --red-400: #f99f9f;
+  --red-500: #f67979;
+  --red-600: #f45252;
+  --red-700: #f23030;
 
-    /* GREEN COLOR VARIANTS */
-    --green-300: #BEE8B0;
-    --green-400: #A4DF90;
-    --green-500: #8AD671;
-    --green-600: #70CD51;
-    --green-700: #54B435;
+  /* GREEN COLOR VARIANTS */
+  --green-300: #bee8b0;
+  --green-400: #a4df90;
+  --green-500: #8ad671;
+  --green-600: #70cd51;
+  --green-700: #54b435;
 
-    /* SIZES */
-    --padding-xs: 0.1rem;
-    --padding-s: 0.5rem;
-    --padding-sm: 1rem;
-    --padding-m: 2.5rem;
-    --padding-ml: 5rem;
+  /* SIZES */
+  --padding-xs: 0.1rem;
+  --padding-s: 0.5rem;
+  --padding-sm: 1rem;
+  --padding-m: 2.5rem;
+  --padding-ml: 5rem;
 
-    --margin-xs: 0.5rem;
-    --margin-ml: 5rem;
+  --margin-xs: 0.5rem;
+  --margin-ml: 5rem;
 
-    --gap-flex-sm: 1rem;
-    --gap-flex-m: 2.5rem;
-    --gap-flex-xl: 5rem;
+  --gap-flex-sm: 1rem;
+  --gap-flex-m: 2.5rem;
+  --gap-flex-xl: 5rem;
 
-    --border-radius: 0.5rem;
-    --border: 0.1rem;
+  --border-radius: 0.5rem;
+  --border: 0.1rem;
+}
+html {
+  box-sizing: border-box;
 }
 
-* {
-  box-sizing: border-box;
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
   padding: 0;
   margin: 0;
 }
 
-html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
   height: 100vh;
+  overflow-x: hidden;
+  
   display: flex;
   align-items: center;
   justify-content: center;
 
   color: var(--white);
-  background: radial-gradient(circle, var(--sky-700) 0%, var(--blue-600) 50%, var(--blue-700) 100%);
 }
 
 a {
