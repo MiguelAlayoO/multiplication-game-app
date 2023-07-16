@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
 const ButtonBoxStyles = styled.div`
-  height: 350px;
-  width: 350px;
+  height: 310px;
+  width: 310px;
 
   display: grid;
   grid-template: repeat(4, 1fr) / repeat(4, 1fr);
@@ -18,6 +18,16 @@ const ButtonBoxStyles = styled.div`
       background-color: var(--green-700);
       border: solid var(--green-700);
     }
+  }
+
+  @media screen and (min-width: 480px) {
+    height: 450px;
+    width: 450px;
+  }
+
+  @media screen and (min-width: 960px) {
+    height: 350px;
+    width: 350px;
   }
 `;
 

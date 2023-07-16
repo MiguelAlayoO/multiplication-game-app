@@ -1,6 +1,5 @@
 import styled, { css } from "styled-components";
-import Image from "next/image";
-import { MouseEventHandler } from "react";
+import { BiBookReader } from "react-icons/bi";
 
 const ButtonStyles = styled.button<{
   $variant?: "primary" | "secondary" | "numeric";
@@ -9,12 +8,13 @@ const ButtonStyles = styled.button<{
   justify-content: center;
   align-items: center;
 
+  font-size: 1.5rem;
   font-family: inherit;
   color: var(--white);
 
   background-color: var(--amber-600);
   border: solid var(--amber-700);
-  border-radius: 3rem;
+  border-radius: 5rem;
   box-shadow: 0px 3px 9px 0px rgba(0, 0, 0, 0.75);
   -webkit-box-shadow: 0px 3px 9px -3px rgba(0, 0, 0, 0.75);
   -moz-box-shadow: 0px 3px 9px 0px rgba(0, 0, 0, 0.75);
@@ -33,7 +33,6 @@ const ButtonStyles = styled.button<{
     $variant === "primary" &&
     css`
       padding: 0.7rem 1.25rem;
-      font-size: 1.5rem;
       font-weight: 700;
     `}
 
@@ -45,7 +44,6 @@ const ButtonStyles = styled.button<{
       background-color: var(--red-700);
       border: solid var(--red-700);
 
-      font-size: 1.5rem;
       font-weight: 700;
 
       &:active {
@@ -60,34 +58,34 @@ const ButtonStyles = styled.button<{
     css`
       font-size: 2.5rem;
       font-weight: 900;
+
+      @media screen and (min-width: 480px) {
+        font-size: 3.5rem;
+      }
+      @media screen and (min-width: 960px) {
+        font-size: 2.5rem;
+      }
     `}
 `;
 
 type ButtonProps = {
   text?: string;
   hasIcon?: boolean;
+  icon?: JSX.Element;
   variant?: "primary" | "secondary" | "numeric";
-  onClick?: MouseEventHandler<HTMLButtonElement> | undefined;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
 };
 
 export const Button = ({
-  text = "default",
+  text,
   hasIcon = false,
-  variant,
+  icon = <BiBookReader />,
+  variant = "primary",
   onClick,
 }: ButtonProps) => {
   return (
-    <ButtonStyles onClick={onClick} $variant={variant}>
-      {hasIcon ? (
-        <Image
-          src={`/icons/${text}.png`}
-          alt="Icon Button"
-          width={60}
-          height={60}
-        ></Image>
-      ) : (
-        <span>{text}</span>
-      )}
+    <ButtonStyles type="button" $variant={variant} onClick={onClick}>
+      {hasIcon ? icon : <span>{text}</span>}
     </ButtonStyles>
   );
 };

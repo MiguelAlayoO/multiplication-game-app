@@ -1,4 +1,3 @@
-import { ChangeEventHandler } from "react";
 import styled from "styled-components";
 
 const InputStyles = styled.input`
@@ -28,16 +27,26 @@ const InputStyles = styled.input`
 type InputProps = {
   type: string;
   value?: string | number;
-  onChange?: ChangeEventHandler<HTMLInputElement>;
+  ref?: React.RefObject<HTMLInputElement>;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
 };
 
-export const Input = ({ type, value, onChange }: InputProps) => {
+export const Input = ({
+  type,
+  value,
+  ref,
+  onChange,
+  onKeyDown,
+}: InputProps) => {
   return (
     <InputStyles
       placeholder=""
       type={type}
       value={value}
+      ref={ref}
       onChange={onChange}
+      onKeyDown={onKeyDown}
       autoFocus
     />
   );

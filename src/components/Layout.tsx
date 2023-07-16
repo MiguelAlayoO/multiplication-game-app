@@ -19,7 +19,7 @@ const ColorBg = styled.main`
 
   display: flex;
   justify-content: center;
-  
+
   background: radial-gradient(
     circle,
     var(--indigo-400) 0%,

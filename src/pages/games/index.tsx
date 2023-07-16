@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 
 import { ButtonBox } from "@/components/ButtonBox";
@@ -12,43 +12,93 @@ import { Input } from "@/components/Input";
 import { buttonData } from "@/assets/data/data";
 
 const Wrapper = styled.div`
-  margin-top: 4rem;
+  margin-top: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
 
   gap: 3rem;
+
+  @media screen and (min-width: 480px) {
+    margin-top: 4rem;
+  }
 `;
 
 // <----------------------------------- Select Name and Level ----------------------------------->
 const WrapperWelcomePage = styled(Wrapper)`
-  max-width: min-content;
+  padding: 0 2rem;
 
   h1 {
-    font-size: 3rem;
+    font-size: 2rem;
+    text-align: center;
   }
 
   h2 {
-    font-size: 2rem;
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  @media screen and (min-width: 480px) {
+    max-width: min-content;
+    padding: 0;
+
+    h1 {
+      font-size: 3rem;
+    }
+
+    h2 {
+      font-size: 2rem;
+    }
   }
 `;
 
 const ContainerButtons = styled.div`
   display: flex;
-  flex-direction: row;
-  gap: 6rem;
+  flex-direction: column;
+  gap: 3rem;
 
-  max-width: min-content;
+  @media screen and (min-width: 480px) {
+    flex-direction: row;
+    gap: 6rem;
+
+    max-width: min-content;
+  }
 `;
 
 const WrapperButton = styled.div`
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 1.5rem;
 
-  text-align: center;
+  span {
+    text-align: center;
+    font-size: 0.8rem;
+    width: 40%;
+  }
+
+  button {
+    span {
+      font-size: inherit;
+      width: inherit;
+    }
+  }
+
+  @media screen and (min-width: 480px) {
+    flex-direction: column;
+    gap: 1.5rem;
+
+    span {
+      font-size: 1rem;
+      width: 100%;
+    }
+
+    button {
+      span {
+        font-size: inherit;
+      }
+    }
+  }
 `;
 
 type WelcomePageProps = {
@@ -99,19 +149,39 @@ const WelcomePage = ({ setName, startGame }: WelcomePageProps) => {
 // <----------------------------------- Game in Progress ----------------------------------->
 
 const WrapperGamePage = styled(Wrapper)`
-  gap: 4rem;
+  gap: 3rem;
 
   h1 {
-    font-size: 3.5rem;
+    font-size: 3rem;
+  }
+
+  @media screen and (min-width: 480px) {
+    gap: 4rem;
+
+    h1 {
+      font-size: 3.5rem;
+    }
   }
 `;
 
-const Container = styled.div`
+const ContainerHead = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 5rem;
+`;
+
+const ContainerGame = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 3rem;
+
+  @media screen and (min-width: 960px) {
+    flex-direction: row;
+  }
 `;
 
 const WrapperScore = styled.div`
@@ -122,11 +192,19 @@ const WrapperScore = styled.div`
 `;
 
 const WrapperMultiplication = styled.div`
-  width: 510px;
+  width: 320px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  @media screen and (min-width: 480px) {
+    width: 450px;
+  }
+
+  @media screen and (min-width: 960px) {
+    width: 510px;
+  }
 `;
 
 const WrapperFactors = styled.div`
@@ -135,7 +213,7 @@ const WrapperFactors = styled.div`
   align-items: center;
 
   span {
-    font-size: 10rem;
+    font-size: 5.5rem;
     font-weight: 900;
     padding: 0 1rem;
 
@@ -143,7 +221,27 @@ const WrapperFactors = styled.div`
   }
 
   span:nth-child(2) {
-    font-size: 8rem;
+    font-size: 4rem;
+  }
+
+  @media screen and (min-width: 480px) {
+    span {
+      font-size: 8.5rem;
+    }
+
+    span:nth-child(2) {
+      font-size: 6.5rem;
+    }
+  }
+
+  @media screen and (min-width: 960px) {
+    span {
+      font-size: 10rem;
+    }
+
+    span:nth-child(2) {
+      font-size: 8rem;
+    }
   }
 `;
 
@@ -161,50 +259,10 @@ const GamePage = ({
   finishGame,
 }: GamePageProps) => {
   const [time, setTime] = useState<number>(90);
-  // const [isApproved, setIsApproved] = useState<boolean>(false);
   const [firstFactor, setFirstFactor] = useState<number>(0);
   const [secondFactor, setSecondFactor] = useState<number>(0);
-  const [response, setResponse] = useState<string>("");
-
-  const lessClick = (textButton: string) => {
-    response === "" && setResponse(textButton);
-  };
-
-  const pointClick = (textButton: string) => {
-    !response.includes(".") && setResponse(response + textButton);
-  };
-
-  const backspaceClick = () => {
-    setResponse(response.slice(0, -1));
-  };
-
-  const numberClick = (textButton: string) => {
-    response === "0"
-      ? setResponse(textButton)
-      : response === "-0"
-      ? setResponse(`-${textButton}`)
-      : setResponse(response + textButton);
-  };
-
-  const enterClick = () => {
-    if (response.trim()) {
-      const product = firstFactor * secondFactor;
-      const productResponse = Number(response);
-
-      product === productResponse
-        ? setScore(score + 5)
-        : score - 2 < 0
-        ? setScore(0)
-        : setScore(score - 2);
-
-      setResponse("");
-    }
-  };
-
-  useEffect(() => {
-    setFirstFactor(Math.floor(Math.random() * factorLevel));
-    setSecondFactor(Math.floor(Math.random() * 12));
-  }, [score, factorLevel]);
+  const [answer, setAnswer] = useState<string>("");
+  const inputNameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (time > 0) {
@@ -218,11 +276,71 @@ const GamePage = ({
     }
   }, [time, finishGame]);
 
+  useEffect(() => {
+    setFirstFactor(Math.floor(Math.random() * factorLevel));
+    setSecondFactor(Math.floor(Math.random() * 12));
+  }, [factorLevel]);
+
   const getTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
 
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  const generateQuestion = () => {
+    setFirstFactor(Math.floor(Math.random() * factorLevel));
+    setSecondFactor(Math.floor(Math.random() * 12));
+
+    setAnswer("");
+  };
+
+  const checkAnswer = () => {
+    if (answer.trim()) {
+      const product = firstFactor * secondFactor;
+      const productAnswer = Number(answer);
+
+      product === productAnswer
+        ? setScore(score + 5)
+        : score - 2 < 0
+        ? setScore(0)
+        : setScore(score - 2);
+
+      generateQuestion();
+    }
+  };
+
+  const lessClick = (textButton: string) => {
+    answer === "" && setAnswer(textButton);
+  };
+
+  const pointClick = (textButton: string) => {
+    !answer.includes(".") && setAnswer(answer + textButton);
+  };
+
+  const backspaceClick = () => {
+    setAnswer(answer.slice(0, -1));
+  };
+
+  const numberClick = (textButton: string) => {
+    answer === "0"
+      ? setAnswer(textButton)
+      : answer === "-0"
+      ? setAnswer(`-${textButton}`)
+      : setAnswer(answer + textButton);
+  };
+
+  const enterClick = () => {
+    checkAnswer();
+    inputNameRef.current?.focus();
+  };
+
+  const handleEnterKeyPress = (
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (event.key === "Enter") {
+      enterClick();
+    }
   };
 
   const handleClickButton = (textButton: string) => {
@@ -242,7 +360,7 @@ const GamePage = ({
 
   return (
     <WrapperGamePage>
-      <Container>
+      <ContainerHead>
         <WrapperScore>
           <Image
             src={"/icons/star.png"}
@@ -253,8 +371,8 @@ const GamePage = ({
           <h1>{score}</h1>
         </WrapperScore>
         <h1>{getTime(time)}</h1>
-      </Container>
-      <Container>
+      </ContainerHead>
+      <ContainerGame>
         <WrapperMultiplication>
           <WrapperFactors>
             <span>{firstFactor}</span>
@@ -263,8 +381,10 @@ const GamePage = ({
           </WrapperFactors>
           <Input
             type="text"
-            value={response.replace(/[^0-9.-]/g, "")}
-            onChange={(e) => setResponse(e.target.value)}
+            ref={inputNameRef}
+            value={answer.replace(/[^0-9.-]/g, "")}
+            onChange={(e) => setAnswer(e.target.value)}
+            onKeyDown={handleEnterKeyPress}
           />
         </WrapperMultiplication>
         <ButtonBox>
@@ -273,12 +393,13 @@ const GamePage = ({
               key={button.id}
               text={button.name}
               hasIcon={button.hasIcon}
+              icon={button.icon}
               variant="numeric"
               onClick={() => handleClickButton(button.name)}
             />
           ))}
         </ButtonBox>
-      </Container>
+      </ContainerGame>
     </WrapperGamePage>
   );
 };
@@ -290,14 +411,24 @@ const WrapperResultPage = styled.div`
   flex-direction: column;
   align-items: center;
 
+  text-align: center;
+
   span {
-    font-size: 4rem;
+    font-size: 3rem;
     font-weight: bold;
+  }
+
+  @media screen and (min-width: 480px) {
+    margin-top: 4rem;
+    span {
+      font-size: 4rem;
+    }
   }
 `;
 
 const Score = styled.div`
-  padding: 1.5rem 4rem;
+  max-width: min-content;
+  padding: 1.5rem 3rem;
   margin: 1rem 0;
 
   background-color: var(--amber-600);
@@ -305,9 +436,28 @@ const Score = styled.div`
 
   span {
     font-family: inherit;
-    font-size: 5.5rem;
+    font-size: 3.5rem;
     font-weight: 800;
-    letter-spacing: 0.5rem;
+  }
+
+  @media screen and (min-width: 480px) {
+    max-width: fit-content;
+    padding: 1.5rem 3rem;
+    margin: 1rem 0;
+
+    span {
+      font-size: 5.5rem;
+    }
+  }
+
+  @media screen and (min-width: 960px) {
+    padding: 1.5rem 4rem;
+    margin: 1rem 0;
+
+    span {
+      font-size: 5.5rem;
+      letter-spacing: 0.5rem;
+    }
   }
 `;
 
