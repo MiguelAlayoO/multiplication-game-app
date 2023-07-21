@@ -28,23 +28,14 @@ const Play = styled.div`
       -webkit-box-shadow: inset -80px -80px 80px -20px var(--indigo-600);
     }
 
-    animation: a 2.5s ease infinite;
+    animation: a 2s ease infinite;
     @keyframes a {
       0% {
         transform: translateY(-5px);
         letter-spacing: 0px;
       }
-
-      25% {
-        letter-spacing: 3px;
-      }
-
       50% {
         transform: translateY(5px);
-        letter-spacing: 0px;
-      }
-
-      75% {
         letter-spacing: 3px;
       }
 

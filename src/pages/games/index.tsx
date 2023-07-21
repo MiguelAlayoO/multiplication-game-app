@@ -1,15 +1,16 @@
 import styled from "styled-components";
 import Image from "next/image";
-import Link from "next/link";
-
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/router";
 
+import ConfettiExplosion from "react-confetti-explosion";
+import useSound from "use-sound";
 import { ButtonBox } from "@/components/ButtonBox";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 
-import { buttonData } from "@/assets/data/data";
+import { useWindowsSize } from "@/hooks/UseWindowsSize";
+import { buttonData } from "@/assets/data/buttons";
+import { soundData } from "@/assets/data/sounds";
 
 const Wrapper = styled.div`
   margin-top: 2rem;
@@ -22,6 +23,12 @@ const Wrapper = styled.div`
   @media screen and (min-width: 480px) {
     margin-top: 4rem;
   }
+`;
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
 `;
 
 // <----------------------------------- Select Name and Level ----------------------------------->
@@ -48,6 +55,25 @@ const WrapperWelcomePage = styled(Wrapper)`
 
     h2 {
       font-size: 2rem;
+    }
+  }
+`;
+
+const ContainerEnterName = styled(Container)`
+  animation: appear 1s ease-in-out reverse;
+  @keyframes appear {
+    to {
+      transform: scale(0.5);
+    }
+  }
+`;
+
+const ContainerSelectLevel = styled(Container)`
+  animation: appear 1s 1s ease-in-out reverse backwards;
+  @keyframes appear {
+    to {
+      transform: scale(0.5);
+      opacity: 0;
     }
   }
 `;
@@ -104,44 +130,61 @@ const WrapperButton = styled.div`
 type WelcomePageProps = {
   setName: (name: string) => void;
   startGame: (factor: number) => void;
+  playBackground: () => void;
 };
 
-const WelcomePage = ({ setName, startGame }: WelcomePageProps) => {
+const WelcomePage = ({
+  setName,
+  startGame,
+  playBackground,
+}: WelcomePageProps) => {
+  const windowSize = useWindowsSize();
+
+  useEffect(() => playBackground());
+
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
 
   return (
     <WrapperWelcomePage>
-      <h1>¿Cuál es tu nombre?</h1>
-      <Input type="text" onChange={handleNameChange} />
-      <h2>Elige el nivel</h2>
-      <ContainerButtons>
-        <WrapperButton>
-          <Button
-            text="Nivel 1"
-            variant="primary"
-            onClick={() => startGame(4)}
-          ></Button>
-          <span>Multiplicaciones del 0 hasta el 4</span>
-        </WrapperButton>
-        <WrapperButton>
-          <Button
-            text="Nivel 2"
-            variant="primary"
-            onClick={() => startGame(8)}
-          ></Button>
-          <span>Multiplicaciones del 0 hasta el 8</span>
-        </WrapperButton>
-        <WrapperButton>
-          <Button
-            text="Nivel 3"
-            variant="primary"
-            onClick={() => startGame(12)}
-          ></Button>
-          <span>Multiplicaciones del 0 hasta el 12</span>
-        </WrapperButton>
-      </ContainerButtons>
+      <ContainerEnterName>
+        <h1>¿Cuál es tu nombre?</h1>
+        <Input
+          type="text"
+          onChange={handleNameChange}
+          autoFocus={windowSize.width > 768}
+        />
+      </ContainerEnterName>
+      <ContainerSelectLevel>
+        <h2>Elige el nivel</h2>
+        <ContainerButtons>
+          <WrapperButton>
+            <Button
+              text="Nivel 1"
+              variant="primary"
+              onClick={() => startGame(4)}
+            ></Button>
+            <span>Multiplicaciones del 0 hasta el 4</span>
+          </WrapperButton>
+          <WrapperButton>
+            <Button
+              text="Nivel 2"
+              variant="primary"
+              onClick={() => startGame(8)}
+            ></Button>
+            <span>Multiplicaciones del 0 hasta el 8</span>
+          </WrapperButton>
+          <WrapperButton>
+            <Button
+              text="Nivel 3"
+              variant="primary"
+              onClick={() => startGame(12)}
+            ></Button>
+            <span>Multiplicaciones del 0 hasta el 12</span>
+          </WrapperButton>
+        </ContainerButtons>
+      </ContainerSelectLevel>
     </WrapperWelcomePage>
   );
 };
@@ -197,6 +240,14 @@ const WrapperMultiplication = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  animation: appear 0.2s ease-out reverse;
+  @keyframes appear {
+    to {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+  }
 
   @media screen and (min-width: 480px) {
     width: 450px;
@@ -262,7 +313,12 @@ const GamePage = ({
   const [firstFactor, setFirstFactor] = useState<number>(0);
   const [secondFactor, setSecondFactor] = useState<number>(0);
   const [answer, setAnswer] = useState<string>("");
+  const windowSize = useWindowsSize();
   const inputNameRef = useRef<HTMLInputElement>(null);
+
+  const [playTimer, { stop: stopTimer }] = useSound(soundData.timer);
+  const [playCorrect] = useSound(soundData.correct, { interrupt: true });
+  const [playIncorrect] = useSound(soundData.incorrect, { interrupt: true });
 
   useEffect(() => {
     if (time > 0) {
@@ -270,11 +326,14 @@ const GamePage = ({
         setTime(time - 1);
       }, 1000);
 
+      time === 10 && playTimer();
+
       return () => clearInterval(interval);
     } else {
+      stopTimer();
       finishGame();
     }
-  }, [time, finishGame]);
+  }, [time, finishGame, playTimer, stopTimer]);
 
   useEffect(() => {
     setFirstFactor(Math.floor(Math.random() * factorLevel));
@@ -300,11 +359,14 @@ const GamePage = ({
       const product = firstFactor * secondFactor;
       const productAnswer = Number(answer);
 
-      product === productAnswer
-        ? setScore(score + 5)
-        : score - 2 < 0
-        ? setScore(0)
-        : setScore(score - 2);
+      if (product === productAnswer) {
+        setScore(score + 5);
+        playCorrect();
+      } else {
+        const newScore = score - 2 < 0 ? 0 : score - 2;
+        setScore(newScore);
+        playIncorrect();
+      }
 
       generateQuestion();
     }
@@ -385,6 +447,8 @@ const GamePage = ({
             value={answer.replace(/[^0-9.-]/g, "")}
             onChange={(e) => setAnswer(e.target.value)}
             onKeyDown={handleEnterKeyPress}
+            readOnly={windowSize.width <= 768}
+            autoFocus={true}
           />
         </WrapperMultiplication>
         <ButtonBox>
@@ -406,57 +470,106 @@ const GamePage = ({
 
 // <----------------------------------- Scoring and Results ----------------------------------->
 
-const WrapperResultPage = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
+const WrapperResultPage = styled(Wrapper)`
+  gap: 0.5rem;
   text-align: center;
 
-  span {
-    font-size: 3rem;
-    font-weight: bold;
-  }
+  .wrapper-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
 
-  @media screen and (min-width: 480px) {
-    margin-top: 4rem;
-    span {
-      font-size: 4rem;
-    }
+    color: var(--dark);
+
+    background-color: var(--white);
   }
 `;
 
-const Score = styled.div`
+const SpanWord = styled.span`
+  font-size: 3rem;
+  font-weight: bold;
+
+  animation: appear 0.2s ease-out reverse backwards;
+  @keyframes appear {
+    to {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+  }
+
+  @media screen and (min-width: 480px) {
+    font-size: 4rem;
+  }
+`;
+
+const Name = styled(SpanWord)`
+  animation-delay: 0.5s;
+`;
+
+const WordObtain = styled(SpanWord)`
+  animation-delay: 1.5s;
+`;
+
+const WordIncredible = styled(SpanWord)`
+  animation-delay: 6s;
+`;
+
+const WrapperConfetti = styled.div`
+  position: absolute;
+`;
+
+const Score = styled.span`
   max-width: min-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
   padding: 1.5rem 3rem;
   margin: 1rem 0;
 
   background-color: var(--amber-600);
   border-radius: 10rem;
 
-  span {
-    font-family: inherit;
-    font-size: 3.5rem;
-    font-weight: 800;
+  font-size: 3.5rem;
+  font-weight: 800;
+
+  &::after {
+    content: "pts";
+  }
+
+  animation: appear 0.2s 3.6s ease-out reverse backwards,
+    roll 1.5s 3.8s ease-in-out infinite alternate-reverse;
+  @keyframes appear {
+    to {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+  }
+
+  @keyframes roll {
+    to {
+      transform: scaleX(1.05);
+    }
   }
 
   @media screen and (min-width: 480px) {
     max-width: fit-content;
-    padding: 1.5rem 3rem;
-    margin: 1rem 0;
-
-    span {
-      font-size: 5.5rem;
+    font-size: 4.5rem;
+    padding: 1.5rem 4rem;
+    &::after {
+      content: "puntos";
     }
   }
+`;
 
-  @media screen and (min-width: 960px) {
-    padding: 1.5rem 4rem;
-    margin: 1rem 0;
+const WrapperBtn = styled.div`
+  padding-top: 1rem;
 
-    span {
-      font-size: 5.5rem;
-      letter-spacing: 0.5rem;
+  animation: appear 1s 7s ease-in-out reverse backwards;
+  @keyframes appear {
+    to {
+      transform: scale(0.5);
+      opacity: 0;
     }
   }
 `;
@@ -465,25 +578,61 @@ type ResultPageProps = {
   name: string;
   score: number;
   restartGame: () => void;
+  pauseBackground: () => void;
 };
 
-const ResultPage = ({ name, score, restartGame }: ResultPageProps) => {
+const ResultPage = ({
+  name,
+  score,
+  restartGame,
+  pauseBackground,
+}: ResultPageProps) => {
+  const [isExploding, setIsExploding] = useState(false);
+  const [playCelebration] = useSound(soundData.celebration);
+
+  useEffect(() => {
+    pauseBackground();
+    playCelebration();
+
+    setTimeout(() => {
+      setIsExploding(true);
+    }, 3745);
+  }, [pauseBackground, playCelebration]);
+
   return (
-    <Wrapper>
-      <WrapperResultPage>
-        <span>{name}</span>
-        <span>obtuviste</span>
-        <Score>
-          <span>{`${score} puntos`}</span>
-        </Score>
-        <span>¡Eso fue increíble!</span>
-      </WrapperResultPage>
-      <Button
-        text="¡Volvamos a jugar!"
-        variant="secondary"
-        onClick={restartGame}
-      />
-    </Wrapper>
+    <WrapperResultPage>
+      <Name>{name}</Name>
+      <WordObtain>y obtuviste</WordObtain>
+      {isExploding && (
+        <WrapperConfetti>
+          <ConfettiExplosion
+            particleCount={200}
+            colors={["#FFB546", "#0af7ff", "#014AB9"]}
+          />
+        </WrapperConfetti>
+      )}
+      <Score>{score}</Score>
+      {/* <div className="wrapper-total">
+        <span className="text">Resolviste</span>
+        <span className="result">54 multiplicaciones</span>
+      </div>
+      <div className="wrapper-total">
+        <span className="text">Acertaste</span>
+        <span className="result">51 multiplicaciones</span>
+      </div>
+      <div className="wrapper-total">
+        <span className="text">Erraste</span>
+        <span className="result">3 multiplicaciones</span>
+      </div> */}
+      <WordIncredible>¡Eso fue increíble!</WordIncredible>
+      <WrapperBtn>
+        <Button
+          text="¡Volvamos a jugar!"
+          variant="secondary"
+          onClick={restartGame}
+        />
+      </WrapperBtn>
+    </WrapperResultPage>
   );
 };
 
@@ -494,6 +643,15 @@ const MultiplicationGame = () => {
   const [name, setName] = useState<string>("Genio Matemático");
   const [factorLevel, setFactorLevel] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
+
+  const [playBackground, { stop: pauseBackground }] = useSound(
+    soundData.background,
+    {
+      volume: 0.5,
+      interrupt: true,
+      loop: true,
+    }
+  );
 
   const handleStartGame = (factor: number) => {
     setFactorLevel(factor);
@@ -513,7 +671,13 @@ const MultiplicationGame = () => {
 
   switch (page) {
     case "inicio":
-      return <WelcomePage setName={setName} startGame={handleStartGame} />;
+      return (
+        <WelcomePage
+          setName={setName}
+          startGame={handleStartGame}
+          playBackground={playBackground}
+        />
+      );
     case "juego":
       return (
         <GamePage
@@ -525,7 +689,12 @@ const MultiplicationGame = () => {
       );
     case "resultado":
       return (
-        <ResultPage name={name} score={score} restartGame={handleRestartGame} />
+        <ResultPage
+          name={name}
+          score={score}
+          restartGame={handleRestartGame}
+          pauseBackground={pauseBackground}
+        />
       );
     default:
       return <div>No hay nada XD</div>;
