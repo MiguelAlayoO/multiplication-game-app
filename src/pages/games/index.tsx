@@ -7,6 +7,7 @@ import useSound from "use-sound";
 import { ButtonBox } from "@/components/ButtonBox";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
+import { Overview } from "@/components/Overview";
 
 import { useWindowsSize } from "@/hooks/UseWindowsSize";
 import { buttonData } from "@/assets/data/buttons";
@@ -130,17 +131,10 @@ const WrapperButton = styled.div`
 type WelcomePageProps = {
   setName: (name: string) => void;
   startGame: (factor: number) => void;
-  playBackground: () => void;
 };
 
-const WelcomePage = ({
-  setName,
-  startGame,
-  playBackground,
-}: WelcomePageProps) => {
+const WelcomePage = ({ setName, startGame }: WelcomePageProps) => {
   const windowSize = useWindowsSize();
-
-  useEffect(() => playBackground());
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
@@ -299,6 +293,10 @@ const WrapperFactors = styled.div`
 type GamePageProps = {
   score: number;
   setScore: (score: number) => void;
+  countCorrectAnswer: number;
+  setCountCorrectAnswer: (countCorrectAnswer: number) => void;
+  countIncorrectAnswer: number;
+  setCountIncorrectAnswer: (countIncorrectAnswer: number) => void;
   factorLevel: number;
   finishGame: () => void;
 };
@@ -306,17 +304,23 @@ type GamePageProps = {
 const GamePage = ({
   score,
   setScore,
+  countCorrectAnswer,
+  setCountCorrectAnswer,
+  countIncorrectAnswer,
+  setCountIncorrectAnswer,
   factorLevel,
   finishGame,
 }: GamePageProps) => {
-  const [time, setTime] = useState<number>(90);
+  const [time, setTime] = useState<number>(120);
   const [firstFactor, setFirstFactor] = useState<number>(0);
   const [secondFactor, setSecondFactor] = useState<number>(0);
   const [answer, setAnswer] = useState<string>("");
   const windowSize = useWindowsSize();
   const inputNameRef = useRef<HTMLInputElement>(null);
 
-  const [playTimer, { stop: stopTimer }] = useSound(soundData.timer);
+  const [playTimer, { stop: stopTimer, sound: soundTimer }] = useSound(
+    soundData.timer
+  );
   const [playCorrect] = useSound(soundData.correct, { interrupt: true });
   const [playIncorrect] = useSound(soundData.incorrect, { interrupt: true });
 
@@ -326,14 +330,15 @@ const GamePage = ({
         setTime(time - 1);
       }, 1000);
 
-      time === 10 && playTimer();
+      time === 10 && !soundTimer.playing() && playTimer();
 
       return () => clearInterval(interval);
     } else {
       stopTimer();
       finishGame();
     }
-  }, [time, finishGame, playTimer, stopTimer]);
+
+  }, [time, finishGame, soundTimer, playTimer, stopTimer]);
 
   useEffect(() => {
     setFirstFactor(Math.floor(Math.random() * factorLevel));
@@ -362,10 +367,12 @@ const GamePage = ({
       if (product === productAnswer) {
         setScore(score + 5);
         playCorrect();
+        setCountCorrectAnswer(countCorrectAnswer + 1);
       } else {
         const newScore = score - 2 < 0 ? 0 : score - 2;
         setScore(newScore);
         playIncorrect();
+        setCountIncorrectAnswer(countIncorrectAnswer + 1);
       }
 
       generateQuestion();
@@ -471,22 +478,13 @@ const GamePage = ({
 // <----------------------------------- Scoring and Results ----------------------------------->
 
 const WrapperResultPage = styled(Wrapper)`
+  margin-top: 3rem;
   gap: 0.5rem;
   text-align: center;
-
-  .wrapper-total {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 1rem;
-
-    color: var(--dark);
-
-    background-color: var(--white);
-  }
 `;
 
 const SpanWord = styled.span`
-  font-size: 3rem;
+  font-size: 1.5rem;
   font-weight: bold;
 
   animation: appear 0.2s ease-out reverse backwards;
@@ -496,14 +494,17 @@ const SpanWord = styled.span`
       opacity: 0;
     }
   }
-
-  @media screen and (min-width: 480px) {
-    font-size: 4rem;
-  }
 `;
 
 const Name = styled(SpanWord)`
+  max-width: min-content;
+  font-size: 2.5rem;
+
   animation-delay: 0.5s;
+
+  @media screen and (min-width: 480px) {
+    font-size: 3rem;
+  }
 `;
 
 const WordObtain = styled(SpanWord)`
@@ -511,11 +512,42 @@ const WordObtain = styled(SpanWord)`
 `;
 
 const WordIncredible = styled(SpanWord)`
-  animation-delay: 6s;
+  animation-delay: 5.3s;
 `;
 
 const WrapperConfetti = styled.div`
   position: absolute;
+`;
+
+const WrapperOverview = styled.div`
+  display: grid;
+  grid-template: repeat(2, 1fr) / repeat(2, 1fr);
+  place-items: center;
+  place-content: center;
+  gap: 2rem;
+  margin: 1rem 0 1.5rem 0;
+
+  div:first-child {
+    grid-column: 1 / 3;
+    grid-row: 1 / 2;
+  }
+
+  animation: appear 0.2s 4.8s ease-out reverse backwards;
+  @keyframes appear {
+    to {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+  }
+
+  @media screen and (min-width: 480px) {
+    grid-template: repeat(1, 1fr) / repeat(3, 1fr);
+    gap: 3.5rem;
+    div:first-child {
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+    }
+  }
 `;
 
 const Score = styled.span`
@@ -530,7 +562,7 @@ const Score = styled.span`
   background-color: var(--amber-600);
   border-radius: 10rem;
 
-  font-size: 3.5rem;
+  font-size: 3rem;
   font-weight: 800;
 
   &::after {
@@ -554,8 +586,8 @@ const Score = styled.span`
 
   @media screen and (min-width: 480px) {
     max-width: fit-content;
-    font-size: 4.5rem;
-    padding: 1.5rem 4rem;
+    font-size: 4rem;
+    padding: 1rem 3.5rem;
     &::after {
       content: "puntos";
     }
@@ -565,7 +597,7 @@ const Score = styled.span`
 const WrapperBtn = styled.div`
   padding-top: 1rem;
 
-  animation: appear 1s 7s ease-in-out reverse backwards;
+  animation: appear 1s 6.5s ease-in-out reverse backwards;
   @keyframes appear {
     to {
       transform: scale(0.5);
@@ -577,32 +609,46 @@ const WrapperBtn = styled.div`
 type ResultPageProps = {
   name: string;
   score: number;
+  countCorrectAnswer: number;
+  countIncorrectAnswer: number;
+  playBackground: () => void;
+  stopBackground: () => void;
   restartGame: () => void;
-  pauseBackground: () => void;
 };
 
 const ResultPage = ({
   name,
   score,
+  countCorrectAnswer,
+  countIncorrectAnswer,
+  playBackground,
+  stopBackground,
   restartGame,
-  pauseBackground,
 }: ResultPageProps) => {
   const [isExploding, setIsExploding] = useState(false);
-  const [playCelebration] = useSound(soundData.celebration);
+  const [playCelebration, { stop: stopCelebration }] = useSound(
+    soundData.celebration,
+    { preload: true }
+  );
 
   useEffect(() => {
-    pauseBackground();
+    stopBackground();
     playCelebration();
 
     setTimeout(() => {
       setIsExploding(true);
     }, 3745);
-  }, [pauseBackground, playCelebration]);
+
+    return () => {
+      stopCelebration();
+      playBackground();
+    };
+  }, [playBackground, stopBackground, playCelebration, stopCelebration]);
 
   return (
     <WrapperResultPage>
       <Name>{name}</Name>
-      <WordObtain>y obtuviste</WordObtain>
+      <WordObtain>obtuviste</WordObtain>
       {isExploding && (
         <WrapperConfetti>
           <ConfettiExplosion
@@ -612,18 +658,23 @@ const ResultPage = ({
         </WrapperConfetti>
       )}
       <Score>{score}</Score>
-      {/* <div className="wrapper-total">
-        <span className="text">Resolviste</span>
-        <span className="result">54 multiplicaciones</span>
-      </div>
-      <div className="wrapper-total">
-        <span className="text">Acertaste</span>
-        <span className="result">51 multiplicaciones</span>
-      </div>
-      <div className="wrapper-total">
-        <span className="text">Erraste</span>
-        <span className="result">3 multiplicaciones</span>
-      </div> */}
+      <WrapperOverview>
+        <Overview
+          text="Resolviste"
+          number={countCorrectAnswer + countIncorrectAnswer}
+          variant="total"
+        />
+        <Overview
+          text="Acertaste"
+          number={countCorrectAnswer}
+          variant="correct"
+        />
+        <Overview
+          text="Erraste"
+          number={countIncorrectAnswer}
+          variant="incorrect"
+        />
+      </WrapperOverview>
       <WordIncredible>¡Eso fue increíble!</WordIncredible>
       <WrapperBtn>
         <Button
@@ -643,15 +694,26 @@ const MultiplicationGame = () => {
   const [name, setName] = useState<string>("Genio Matemático");
   const [factorLevel, setFactorLevel] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
+  const [countCorrectAnswer, setCountCorrectAnswer] = useState<number>(0);
+  const [countIncorrectAnswer, setCountIncorrectAnswer] = useState<number>(0);
 
-  const [playBackground, { stop: pauseBackground }] = useSound(
+  const [playBackground, { stop: stopBackground }] = useSound(
     soundData.background,
     {
-      volume: 0.5,
+      volume: 0.6,
       interrupt: true,
       loop: true,
+      preload: true,
     }
   );
+
+  useEffect(() => {
+    playBackground();
+
+    return () => {
+      stopBackground();
+    };
+  }, [playBackground, stopBackground]);
 
   const handleStartGame = (factor: number) => {
     setFactorLevel(factor);
@@ -667,22 +729,22 @@ const MultiplicationGame = () => {
     setName("Genio Matemático");
     setFactorLevel(0);
     setScore(0);
+    setCountCorrectAnswer(0);
+    setCountIncorrectAnswer(0);
   };
 
   switch (page) {
     case "inicio":
-      return (
-        <WelcomePage
-          setName={setName}
-          startGame={handleStartGame}
-          playBackground={playBackground}
-        />
-      );
+      return <WelcomePage setName={setName} startGame={handleStartGame} />;
     case "juego":
       return (
         <GamePage
           score={score}
           setScore={setScore}
+          countCorrectAnswer={countCorrectAnswer}
+          setCountCorrectAnswer={setCountCorrectAnswer}
+          countIncorrectAnswer={countIncorrectAnswer}
+          setCountIncorrectAnswer={setCountIncorrectAnswer}
           factorLevel={factorLevel}
           finishGame={handleFinishGame}
         />
@@ -692,8 +754,11 @@ const MultiplicationGame = () => {
         <ResultPage
           name={name}
           score={score}
+          countCorrectAnswer={countCorrectAnswer}
+          countIncorrectAnswer={countIncorrectAnswer}
+          playBackground={playBackground}
+          stopBackground={stopBackground}
           restartGame={handleRestartGame}
-          pauseBackground={pauseBackground}
         />
       );
     default:

@@ -3,11 +3,20 @@
   --dark: #000000;
 
   /* INDIGO COLOR VARIANTS */
-  --indigo-300: #4891FE;
-  --indigo-400: #014AB9;
-  --indigo-500: #300BC1;
-  --indigo-600: #1E077E;
+  --indigo-300: #4891fe;
+  --indigo-400: #014ab9;
+  --indigo-500: #300bc1;
+  --indigo-600: #1e077e;
   --indigo-700: #150047;
+  --indigo-800: #0c0029;
+
+  /* PURPLE COLOR VARIANTS */
+  --purple-300: #E289C5;
+  --purple-400: #BA7CBB;
+  --purple-500: #CD63BD;
+  --purple-600: #5D40A3;
+  --purple-700: #502B83;
+  --purple-800: #2F194D;
 
   /* SKY COLOR VARIANTS */
   --sky-300: #85fbff;
@@ -15,13 +24,15 @@
   --sky-500: #0af7ff;
   --sky-600: #00d9e0;
   --sky-700: #00b1b8;
+  --sky-800: #006366;
 
   /* AMBER COLOR VARIANTS */
   --amber-300: #fddb9b;
   --amber-400: #fccc73;
   --amber-500: #fbbe4b;
-  --amber-600: #FFB546;
+  --amber-600: #ffb546;
   --amber-700: #f29f05;
+  --amber-800: #a06903;
 
   /* RED COLOR VARIANTS */
   --red-300: #fbc5c5;
@@ -29,6 +40,7 @@
   --red-500: #f67979;
   --red-600: #f45252;
   --red-700: #f23030;
+  --red-800: #c00c0c;
 
   /* GREEN COLOR VARIANTS */
   --green-300: #bee8b0;
@@ -36,23 +48,9 @@
   --green-500: #8ad671;
   --green-600: #70cd51;
   --green-700: #54b435;
+  --green-800: #346f20;
 
-  /* SIZES */
-  --padding-xs: 0.1rem;
-  --padding-s: 0.5rem;
-  --padding-sm: 1rem;
-  --padding-m: 2.5rem;
-  --padding-ml: 5rem;
 
-  --margin-xs: 0.5rem;
-  --margin-ml: 5rem;
-
-  --gap-flex-sm: 1rem;
-  --gap-flex-m: 2.5rem;
-  --gap-flex-xl: 5rem;
-
-  --border-radius: 0.5rem;
-  --border: 0.1rem;
 }
 html {
   box-sizing: border-box;
@@ -70,7 +68,7 @@ body {
   max-width: 100vw;
   height: 100vh;
   overflow-x: hidden;
-  
+
   display: flex;
   align-items: center;
   justify-content: center;

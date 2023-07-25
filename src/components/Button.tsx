@@ -54,14 +54,14 @@ const ButtonStyles = styled.button<{
     css`
       padding: 0.7rem 1.25rem;
 
-      background-color: var(--red-700);
-      border: solid var(--red-700);
+      background-color: var(--purple-500);
+      border: solid var(--purple-500);
 
       font-weight: 700;
 
       &:active {
-        background-color: var(--red-600);
-        border: solid var(--red-600);
+        background-color: var(--purple-400);
+        border: solid var(--purple-400);
         box-shadow: none;
         padding: 0.6rem 1.1rem;
         font-size: 1.4rem;
@@ -106,10 +106,10 @@ type ButtonProps = {
 };
 
 export const Button = ({
-  text,
+  text="Button text",
   hasIcon = false,
   icon = <BiBookReader />,
-  variant = "primary",
+  variant,
   onClick,
 }: ButtonProps) => {
   return (
